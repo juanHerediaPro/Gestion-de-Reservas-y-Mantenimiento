@@ -8,19 +8,20 @@ from vehicles.models import Vehicles
 
 class BookingSerializer(serializers.ModelSerializer):
 
-    vehicles = VehiclesSerializers(source='vehicle',read_only=True)
+    vehicle_detail = VehiclesSerializers(source='vehicle',read_only=True)
     customers = CustomersSerializers(source='customer',read_only=True)
     
     class Meta:
         model = Booking
         fields = [
+            'id',
             'customer',
             'vehicle',
             'start_date',
             'end_date',
             'status',
             'total_price',
-            'vehicles',
+            'vehicle_detail',
             'customers'
         ]
         read_only_fields = ['total_price']

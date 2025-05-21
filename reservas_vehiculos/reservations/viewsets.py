@@ -31,8 +31,16 @@ class BookingViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         if hasattr(self.request.user, 'customer'):
             customer = Customers.objects.get(user=self.request.user)
-            serializer.save(customer=customer)
+            booking = serializer.save(customer=customer)
         else:
-            serializer.save()
+            booking = serializer.save()
+        
+        if booking.vehicle:
+            booking.vehicle.condition = 'RESERVED'
+            booking.vehicle.save()
+
+
+        
+
 
 

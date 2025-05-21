@@ -33,7 +33,7 @@ class MaintenanceViewSet(viewsets.ModelViewSet):
         user = self.request.user
         try:
             employee = Employee.objects.get(user=user)
-            serializer.save(employee=[employee])
+            serializer.save(employee=employee)
         except Employee.DoesNotExist:
             raise ValidationError("El usuario no está asociado a ningún empleado.")
 
