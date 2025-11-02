@@ -5,21 +5,15 @@ metadata:
   name: customers-service # Nombre del servicio en Cloud Run
   labels:
     cloud.googleapis.com/location: us-central1
-  # CRÍTICO: Anotaciones de la INFRAESTRUCTURA (Cloud SQL) van aquí,
-  # a nivel de metadata del servicio.
-  annotations:
-    # Asegura la conexión al socket de Cloud SQL
-    run.googleapis.com/cloudsql-instances: practica2-477009:us-central1:id-postgres-bd
 spec:
   template:
-    # IMPORTANTE: Eliminamos el bloque 'metadata' dentro del 'template'
-    # para evitar el error de Revision.
+    metadata:
+      # CRÍTICO: La anotación de Cloud SQL va en los metadatos del TEMPLATE (Revisión)
+      annotations:
+        run.googleapis.com/cloudsql-instances: practica2-477009:us-central1:id-postgres-bd
     spec:
       containers:
       - image: us-central1-docker.pkg.dev/practica2-477009/reservas-vehiculo/customers-service
-        # El puerto 8080 se usa por defecto, pero se define en el Dockerfile
-        # ports:
-        # - containerPort: 8080 
         env:
         # 1. Variables de entorno de Django para la lógica del socket
         - name: DJANGO_SETTINGS_MODULE
@@ -39,5 +33,5 @@ spec:
             secretKeyRef:
               name: PASSWORD # Nombre de tu secreto en Secret Manager
               key: latest
-      # 3. Cuenta de Servicio (confirmada)
+      # 3. Cuenta de Servicio (Confirmada por ti)
       serviceAccountName: 57187527650-compute@developer.gserviceaccount.com
