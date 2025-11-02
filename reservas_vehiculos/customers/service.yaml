@@ -5,14 +5,15 @@ metadata:
   name: customers-service # Nombre del servicio en Cloud Run
   labels:
     cloud.googleapis.com/location: us-central1
+  # CRÍTICO: Anotaciones de la INFRAESTRUCTURA (Cloud SQL) van aquí,
+  # a nivel de metadata del servicio.
+  annotations:
+    # Asegura la conexión al socket de Cloud SQL
+    run.googleapis.com/cloudsql-instances: practica2-477009:us-central1:id-postgres-bd
 spec:
   template:
-    metadata:
-      annotations:
-        # Permite acceso público
-        run.googleapis.com/ingress: all
-        # Asegura la conexión al socket de Cloud SQL
-        run.googleapis.com/cloudsql-instances: practica2-477009:us-central1:id-postgres-bd
+    # IMPORTANTE: Eliminamos el bloque 'metadata' dentro del 'template'
+    # para evitar el error de Revision.
     spec:
       containers:
       - image: us-central1-docker.pkg.dev/practica2-477009/reservas-vehiculo/customers-service
@@ -38,6 +39,5 @@ spec:
             secretKeyRef:
               name: PASSWORD # Nombre de tu secreto en Secret Manager
               key: latest
-      # 3. Cuenta de Servicio (necesita permisos de Cloud SQL Client y Secret Accessor)
+      # 3. Cuenta de Servicio (confirmada)
       serviceAccountName: 57187527650-compute@developer.gserviceaccount.com
-      # Reemplaza TU_CUENTA_DE_SERVICIO_RUN
