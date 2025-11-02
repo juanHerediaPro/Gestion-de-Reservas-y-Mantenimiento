@@ -1,4 +1,4 @@
-# cloudbuild.yaml (En la raíz del repositorio)
+# cloudbuild.yaml (En la raíz del repositorio, fuera de la carpeta 'reservas_vehiculos')
 steps:
   # =================================================================
   # 1. CUSTOMERS - BUILD & PUSH
@@ -10,9 +10,10 @@ steps:
         "build",
         "-t",
         "us-central1-docker.pkg.dev/practica2-477009/reservas-vehiculo/customers-service",
-        "."
+        "." # Contexto: la carpeta actual (reservas_vehiculos/customers/)
       ]
-    dir: customers # Ejecuta el build DENTRO de la carpeta customers
+    # ¡LA CORRECCIÓN! El directorio es relativo a la raíz del repositorio
+    dir: reservas_vehiculos/customers
   
   - name: gcr.io/cloud-builders/docker
     id: Push Customers Image
@@ -23,20 +24,23 @@ steps:
       ]
 
   # =================================================================
-  # 2. CUSTOMERS - DEPLOY (Usando el service.yaml)
+  # 2. CUSTOMERS - DEPLOY (Usando service.yaml)
   # =================================================================
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk
     id: Deploy Customers Service (YAML)
-    dir: customers # Nos movemos a la carpeta donde está el service.yaml
+    # Nos movemos a la carpeta que contiene el service.yaml
+    dir: reservas_vehiculos/customers 
     entrypoint: gcloud
     args:
       [
         "run", "services", "replace", "service.yaml",
         "--region=us-central1",
         "--platform=managed",
-        "--project=practica2-477009", # Aseguramos el proyecto
-        "--allow-unauthenticated" # El YAML NO puede configurar 'allow-unauthenticated', se debe hacer con la CLI o después
+        "--project=practica2-477009",
+        "--allow-unauthenticated"
       ]
+
+  # (Continúa con los demás microservicios: employees, vehicles, etc., usando la misma lógica de 'dir:')
 
 images:
   - "us-central1-docker.pkg.dev/practica2-477009/reservas-vehiculo/customers-service"
