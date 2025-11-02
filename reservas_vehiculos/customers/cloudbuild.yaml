@@ -37,7 +37,21 @@ steps:
         "--region=us-central1",
         "--platform=managed",
         "--project=practica2-477009",
-        "--allow-unauthenticated"
+      ]
+    
+  # =================================================================
+  # PASO 3: CONFIGURAR ACCESO PÚBLICO (IAM)
+  # =================================================================
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    id: Set Public Access
+    entrypoint: gcloud
+    args:
+      [
+        "run", "services", "add-iam-policy-binding", "customers-service",
+        "--member=allUsers",
+        "--role=roles/run.invoker",
+        "--region=us-central1",
+        "--platform=managed"
       ]
 
   # (Continúa con los demás microservicios: employees, vehicles, etc., usando la misma lógica de 'dir:')
