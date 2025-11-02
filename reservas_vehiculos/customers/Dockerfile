@@ -19,4 +19,4 @@ COPY reservas_vehiculos /usr/src/app/reservas_vehiculos
 
 # CRÍTICO: Ejecutar un comando shell para cambiar al directorio del proyecto 
 # y luego ejecutar gunicorn. Esto resuelve el ModuleNotFoundError.
-CMD sh -c "cd /usr/src/app/reservas_vehiculos && exec gunicorn --bind :$PORT --workers 2 --threads 4 reservas_vehiculos.wsgi"
+CMD ["python", "/usr/src/app/reservas_vehiculos/manage.py", "runserver", "0.0.0.0:8080"]
