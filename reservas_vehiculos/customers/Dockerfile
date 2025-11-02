@@ -8,16 +8,15 @@ ENV PORT 8080
 
 WORKDIR /usr/src/app
 
-# Copia los requisitos desde su ubicación relativa al contexto ('customers/')
-COPY customers/requirements.txt . 
+# Copia los requisitos desde su ubicación relativa al contexto (raíz del repo)
+# Esto asume que requirements.txt está en reservas_vehiculos/customers/requirements.txt
+COPY reservas_vehiculos/customers/requirements.txt . 
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia TODO el contenido del contexto (incluye 'customers/' y 'reservas_vehiculos/')
-COPY . /usr/src/app/
+# Copia la carpeta principal de Django al workdir
+# El código estará en /usr/src/app/reservas_vehiculos
+COPY reservas_vehiculos /usr/src/app/reservas_vehiculos
 
-# CRÍTICO: Configura el PYTHONPATH para que Python encuentre el módulo principal anidado.
-# Esto resuelve: ModuleNotFoundError: No module named 'reservas_vehiculos'
-ENV PYTHONPATH=/usr/src/app/reservas_vehiculos
-
-# Ejecuta Gunicorn (que ahora puede encontrar el módulo)
-CMD exec gunicorn --bind :$PORT --workers 2 --threads 4 reservas_vehiculos.wsgi
+# CRÍTICO: Ejecutar un comando shell para cambiar al directorio del proyecto 
+# y luego ejecutar gunicorn. Esto resuelve el ModuleNotFoundError.
+CMD sh -c "cd /usr/src/app/reservas_vehiculos && exec gunicorn --bind :$PORT --workers 2 --threads 4 reservas_vehiculos.wsgi"
