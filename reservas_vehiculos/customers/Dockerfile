@@ -1,18 +1,28 @@
 # reservas_vehiculos/customers/Dockerfile
+
 FROM python:3.11-slim
-# ... (variables de entorno)
 
-# 1. El WORKDIR debe apuntar a la raíz donde está la carpeta 'reservas_vehiculos'
-# Si el COPY es COPY . /usr/src/app/, entonces el WORKDIR correcto es /usr/src/app/
-WORKDIR /usr/src/app 
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+ENV PORT 8080 
 
-# Copia de requisitos y instalación (usando el contexto ampliado de Step 2)
-COPY requirements.txt .
+# El directorio de trabajo base en el contenedor
+WORKDIR /usr/src/app
+
+# --- PASO 1: INSTALAR DEPENDENCIAS ---
+# Copia requirements.txt desde su ubicación (customers/requirements.txt)
+# y lo nombra 'requirements.txt' en el workdir del contenedor.
+COPY customers/requirements.txt . 
+
+# Instala las dependencias
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia TODO el contenido del contexto (incluyendo ambas carpetas: customers/ y reservas_vehiculos/)
-COPY . /usr/src/app/ 
+# --- PASO 2: COPIAR TODO EL CÓDIGO ---
+# Copia TODO el contenido del contexto (la carpeta 'reservas_vehiculos/')
+# al directorio /usr/src/app del contenedor.
+COPY . /usr/src/app/
 
-# CRÍTICO: Ajustar el CMD para apuntar al módulo wsgi dentro de la carpeta
-# (El nombre del módulo wsgi ahora es 'reservas_vehiculos.wsgi' que está en /usr/src/app/reservas_vehiculos/)
+# --- PASO 3: INICIO DE GUNICORN ---
+# Gunicorn inicia la aplicación, que ahora puede encontrar
+# 'reservas_vehiculos.wsgi' dentro de /usr/src/app/reservas_vehiculos
 CMD exec gunicorn --bind :$PORT --workers 2 --threads 4 reservas_vehiculos.wsgi
