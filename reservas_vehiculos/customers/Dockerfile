@@ -1,22 +1,18 @@
-# Dockerfile
+# reservas_vehiculos/customers/Dockerfile
 FROM python:3.11-slim
+# ... (variables de entorno)
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+# 1. El WORKDIR debe apuntar a la raíz donde está la carpeta 'reservas_vehiculos'
+# Si el COPY es COPY . /usr/src/app/, entonces el WORKDIR correcto es /usr/src/app/
+WORKDIR /usr/src/app 
 
-# Puerto estándar de Cloud Run
-ENV PORT 8080 
-
-WORKDIR /usr/src/app
-
-# Copia los archivos de requerimientos e instala
+# Copia de requisitos y instalación (usando el contexto ampliado de Step 2)
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia el código fuente completo del microservicio
-COPY . /usr/src/app/
+# Copia TODO el contenido del contexto (incluyendo ambas carpetas: customers/ y reservas_vehiculos/)
+COPY . /usr/src/app/ 
 
-# CRÍTICO: Comando de ejecución con Gunicorn
-# Asegúrate de que esta ruta (reservas_vehiculos.wsgi) sea correcta.
-# Si el archivo settings.py está en la carpeta 'reservas_vehiculos', esto es correcto.
+# CRÍTICO: Ajustar el CMD para apuntar al módulo wsgi dentro de la carpeta
+# (El nombre del módulo wsgi ahora es 'reservas_vehiculos.wsgi' que está en /usr/src/app/reservas_vehiculos/)
 CMD exec gunicorn --bind :$PORT --workers 2 --threads 4 reservas_vehiculos.wsgi
