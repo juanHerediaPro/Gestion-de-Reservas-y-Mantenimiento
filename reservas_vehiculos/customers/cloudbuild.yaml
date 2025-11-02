@@ -1,6 +1,6 @@
 steps:
   # =================================================================
-  # 1. CUSTOMERS - BUILD & PUSH (CORRECCIÓN DE RUTA DEFINITIVA)
+  # 1. CUSTOMERS - BUILD & PUSH (SOLUCIÓN DEL PATH DE PYTHON)
   # =================================================================
   - name: gcr.io/cloud-builders/docker
     id: Build Customers Image
@@ -9,13 +9,10 @@ steps:
         "build",
         "-t",
         "us-central1-docker.pkg.dev/practica2-477009/reservas-vehiculo/customers-service",
-        # ¡CRÍTICO! Usamos la ruta completa desde la raíz del repo (el contexto)
-        "-f", "reservas_vehiculos/customers/Dockerfile", 
-        "." # Contexto: La raíz del repositorio completo
+        "-f", "customers/Dockerfile", # Ruta del Dockerfile dentro del DIR
+        "." # Contexto: Toda la carpeta 'reservas_vehiculos'
       ]
-    # No establecemos 'dir'. El contexto de build es la raíz del repositorio.
-    # Así el -f apunta a la ruta absoluta y el COPY en el Dockerfile debe ajustarse.
-    # ELIMINAR EL 'dir: reservas_vehiculos' para este paso.
+    dir: reservas_vehiculos # <--- ¡CRÍTICO! Directorio de trabajo para el build.
   
   - name: gcr.io/cloud-builders/docker
     id: Push Customers Image
@@ -30,7 +27,7 @@ steps:
   # =================================================================
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk
     id: Deploy Customers Service (YAML)
-    # Correcto: Nos movemos a la carpeta que contiene el service.yaml
+    # Se necesita el subdirectorio para encontrar el service.yaml
     dir: reservas_vehiculos/customers 
     entrypoint: gcloud
     args:
@@ -55,8 +52,7 @@ steps:
         "--region=us-central1",
         "--platform=managed"
       ]
-
-# ... (El resto del YAML no cambia)
+# ... (El resto del YAML)
 images:
   - "us-central1-docker.pkg.dev/practica2-477009/reservas-vehiculo/customers-service"
   
