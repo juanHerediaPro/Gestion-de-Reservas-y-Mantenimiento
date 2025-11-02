@@ -25,4 +25,4 @@ COPY . /usr/src/app/
 # --- PASO 3: INICIO DE GUNICORN ---
 # Gunicorn inicia la aplicación, que ahora puede encontrar
 # 'reservas_vehiculos.wsgi' dentro de /usr/src/app/reservas_vehiculos
-CMD exec gunicorn --bind :$PORT --workers 2 --threads 4 reservas_vehiculos.wsgi
+CMD exec gunicorn --bind :$PORT --workers 2 --threads 4 reservas_vehiculos.wsgi:application
