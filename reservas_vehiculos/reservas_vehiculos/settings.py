@@ -83,16 +83,27 @@ WSGI_APPLICATION = 'reservas_vehiculos.wsgi.application'
 
 import os
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('POSTGRES_DB'),
-        'USER': os.environ.get('POSTGRES_USER'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        'HOST': os.environ.get('DB_HOST', 'db'),  # Aquí debería estar 'db' para referirse al contenedor de PostgreSQL
-        'PORT': os.environ.get('DB_PORT', '5432'),
+# Tu ID de conexión a Cloud SQL: practica2-477009:us-central1:id-postgres-bd
+CLOUDSQL_CONNECTION_NAME = os.environ.get('CLOUDSQL_CONNECTION_NAME')
+
+if CLOUDSQL_CONNECTION_NAME:
+    # Si estamos en Cloud Run o un entorno con Cloud SQL Proxy:
+    # El HOST debe ser nulo o vacío para usar el socket UNIX.
+    # El socket se encuentra en /cloudsql/CONNECTION_NAME
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('POSTGRES_DB', 'reservas'), # Usamos el nombre de la DB
+            'USER': os.environ.get('POSTGRES_USER'),
+            'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+            'HOST': '',  # Debe ser vacío
+            'PORT': '',  # Debe ser vacío
+            'OPTIONS': {
+                # Esta opción es CRÍTICA para usar el socket UNIX
+                'host': f'/cloudsql/{CLOUDSQL_CONNECTION_NAME}'
+            }
+        }
     }
-}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

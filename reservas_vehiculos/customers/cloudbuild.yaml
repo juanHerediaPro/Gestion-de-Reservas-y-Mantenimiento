@@ -1,0 +1,45 @@
+# cloudbuild.yaml (En la raíz del repositorio)
+steps:
+  # =================================================================
+  # 1. CUSTOMERS - BUILD & PUSH
+  # =================================================================
+  - name: gcr.io/cloud-builders/docker
+    id: Build Customers Image
+    args:
+      [
+        "build",
+        "-t",
+        "us-central1-docker.pkg.dev/practica2-477009/reservas-vehiculo/customers-service",
+        "."
+      ]
+    dir: customers # Ejecuta el build DENTRO de la carpeta customers
+  
+  - name: gcr.io/cloud-builders/docker
+    id: Push Customers Image
+    args:
+      [
+        "push",
+        "us-central1-docker.pkg.dev/practica2-477009/reservas-vehiculo/customers-service"
+      ]
+
+  # =================================================================
+  # 2. CUSTOMERS - DEPLOY (Usando el service.yaml)
+  # =================================================================
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    id: Deploy Customers Service (YAML)
+    dir: customers # Nos movemos a la carpeta donde está el service.yaml
+    entrypoint: gcloud
+    args:
+      [
+        "run", "services", "replace", "service.yaml",
+        "--region=us-central1",
+        "--platform=managed",
+        "--project=practica2-477009", # Aseguramos el proyecto
+        "--allow-unauthenticated" # El YAML NO puede configurar 'allow-unauthenticated', se debe hacer con la CLI o después
+      ]
+
+images:
+  - "us-central1-docker.pkg.dev/practica2-477009/reservas-vehiculo/customers-service"
+  
+options:
+  logging: CLOUD_LOGGING_ONLY
