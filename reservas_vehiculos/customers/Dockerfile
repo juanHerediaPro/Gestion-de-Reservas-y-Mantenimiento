@@ -16,4 +16,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copia toda la carpeta 'reservas_vehiculos' al workdir
 COPY reservas_vehiculos /usr/src/app/
 # ...
-CMD exec gunicorn --bind :$PORT --workers 2 --threads 4 reservas_vehiculos.wsgi
+CMD ["python", "reservas_vehiculos/manage.py", "runserver", "0.0.0.0:8080"]
