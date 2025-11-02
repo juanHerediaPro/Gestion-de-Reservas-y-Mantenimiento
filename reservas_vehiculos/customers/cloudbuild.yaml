@@ -1,7 +1,6 @@
-# cloudbuild.yaml (En la raíz del repositorio, fuera de la carpeta 'reservas_vehiculos')
 steps:
   # =================================================================
-  # 1. CUSTOMERS - BUILD & PUSH (CORRECCIÓN DE CONTEXTO)
+  # 1. CUSTOMERS - BUILD & PUSH (CORRECCIÓN DE RUTA DEFINITIVA)
   # =================================================================
   - name: gcr.io/cloud-builders/docker
     id: Build Customers Image
@@ -10,11 +9,13 @@ steps:
         "build",
         "-t",
         "us-central1-docker.pkg.dev/practica2-477009/reservas-vehiculo/customers-service",
-        "-f", "customers/Dockerfile", # <--- ¡CORRECCIÓN CLAVE! Indicamos la ruta del Dockerfile.
-        "." # Contexto: Toda la carpeta 'reservas_vehiculos'
+        # ¡CRÍTICO! Usamos la ruta completa desde la raíz del repo (el contexto)
+        "-f", "reservas_vehiculos/customers/Dockerfile", 
+        "." # Contexto: La raíz del repositorio completo
       ]
-    # El directorio de trabajo ahora es la carpeta principal que contiene todo el código.
-    dir: reservas_vehiculos 
+    # No establecemos 'dir'. El contexto de build es la raíz del repositorio.
+    # Así el -f apunta a la ruta absoluta y el COPY en el Dockerfile debe ajustarse.
+    # ELIMINAR EL 'dir: reservas_vehiculos' para este paso.
   
   - name: gcr.io/cloud-builders/docker
     id: Push Customers Image
